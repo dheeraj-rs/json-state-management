@@ -1,103 +1,153 @@
-import Image from "next/image";
+"use client";
+import { Download, Settings, FileText } from 'lucide-react';
+import { useJSONState } from '../hooks/useJSONState';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { state, updateState, downloadJSON } = useJSONState();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleInputChange = async (path: string, value: string | boolean, type: string = 'text') => {
+    let processedValue: string | boolean = value;
+    if (type === 'number') {
+      processedValue = (parseInt(value as string, 10) || 0).toString();
+    } else if (type === 'checkbox') {
+      return updateState(path, value as boolean);
+    }
+    updateState(path, processedValue as string);
+  };
+
+  const formatJSON = (obj: unknown) => {
+    if (!obj) return '';
+    const jsonString = JSON.stringify(obj, null, 2);
+    return jsonString
+      .replace(/(".*?")\s*:/g, '<span class="json-key">$1</span>:')
+      .replace(/:\s*(".*?")/g, ': <span class="json-string">$1</span>')
+      .replace(/:\s*(true|false)/g, ': <span class="json-boolean">$1</span>')
+      .replace(/:\s*(\d+)/g, ': <span class="json-number">$1</span>')
+      .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b px-4 lg:px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex-shrink-0"></div>
+            <div>
+              <h1 className="text-lg lg:text-xl font-bold text-gray-900">JSON State Manager</h1>
+              <p className="text-xs text-gray-500 hidden sm:block">Real-time JSON state management</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={downloadJSON}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Download size={14} />
+              <span className="hidden sm:inline">Download</span>
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </header>
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-73px)]">
+        <div className="w-full lg:w-2/5 xl:w-1/3 bg-white border-b lg:border-b-0 lg:border-r overflow-y-auto">
+          <div className="p-4 lg:p-6 space-y-6">
+            <section>
+              <div className="flex items-center space-x-2 mb-4">
+                <Settings size={18} className="text-orange-600" />
+                <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mode</label>
+                    <select
+                      value={state.theme?.mode || 'light'}
+                      onChange={(e) => handleInputChange('theme.mode', e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                      <option value="auto">Auto</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                    <input
+                      type="color"
+                      value={state.theme?.color || '#3B82F6'}
+                      onChange={(e) => handleInputChange('theme.color', e.target.value)}
+                      className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <label className="text-sm font-medium text-gray-700">Sidebar</label>
+                    <input
+                      type="checkbox"
+                      checked={state.layout?.sidebar || false}
+                      onChange={(e) => handleInputChange('layout.sidebar', e.target.checked, 'checkbox')}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input
+                      type="text"
+                      value={state.content?.title || ''}
+                      onChange={(e) => handleInputChange('content.title', e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter title..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Font Size: {state.settings?.fontSize || 16}px</label>
+                    <input
+                      type="range"
+                      min="12"
+                      max="24"
+                      value={state.settings?.fontSize || 16}
+                      onChange={(e) => handleInputChange('settings.fontSize', e.target.value, 'number')}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>12px</span>
+                      <span>18px</span>
+                      <span>24px</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div className="flex-1 bg-gray-900 overflow-hidden">
+          <div className="h-full flex flex-col">
+            <div className="bg-gray-800 px-4 lg:px-6 py-3 border-b border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FileText size={16} className="text-blue-400" />
+                  <span className="text-white font-medium text-sm lg:text-base">JSON State View</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 text-xs">Live</span>
+                  <span className="text-gray-400 text-xs ml-2">
+                    {Object.keys(state).length} sections • {JSON.stringify(state).length} chars
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-4 lg:p-6">
+              <div className="json-container h-full">
+                <div className="json-content bg-gray-900 p-6 rounded-b-lg flex-1 overflow-auto">
+                  <pre className="text-gray-100 font-mono text-sm leading-relaxed">
+                    <code dangerouslySetInnerHTML={{ __html: formatJSON(state) }} />
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

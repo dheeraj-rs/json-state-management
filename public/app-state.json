@@ -1,0 +1,15 @@
+{
+  "theme": {
+    "mode": "dark",
+    "color": "#ced572"
+  },
+  "layout": {
+    "sidebar": true
+  },
+  "content": {
+    "title": "JSON State Managerss"
+  },
+  "settings": {
+    "fontSize": 21
+  }
+}
